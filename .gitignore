@@ -1,0 +1,36 @@
+# Build outputs
+**/bin/
+**/obj/
+frontend/dist/
+frontend/dev-dist/
+
+# Dependencies
+frontend/node_modules/
+
+# Local environment and secrets
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+**/appsettings.Local.json
+**/appsettings.Development.json
+!**/appsettings.Development.example.json
+*.docx
+
+# IDE files
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.user
+*.suo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs and local files
+*.log
+*.local
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*

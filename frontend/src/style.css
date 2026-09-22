@@ -1,0 +1,149 @@
+:root {
+  /* ---- Paleta AROOMAF: senaletica vial boliviana ---- */
+  --asfalto: #23282E;           /* asfalto profundo */
+  --asfalto-claro: #2E363D;     /* asfalto un tono arriba */
+  --hormigon: #EEF0EE;          /* hormigon claro (fondo) */
+  --hogar: #FCFCFC;             /* blanco hueso */
+  --linea: #D6D9D6;             /* linea divisoria suave */
+
+  --naranja-obra: #E9500E;      /* naranja seguridad vial */
+  --naranja-obra-oscuro: #C73E0C;
+
+  --amarillo-ruta: #F2B705;     /* amarillo demarcacion */
+  --amarillo-ruta-suave: #F5C84A;
+
+  --verde-senal: #1E9E5A;       /* verde semaforo / presente */
+  --verde-senal-claro: #2FC070;
+
+  --rojo-senal: #D8433A;        /* rojo semaforo / no transita / alerta */
+  --rojo-senal-claro: #E8655A;
+
+  /* ---- Tipografia ---- */
+  --font-titulo: 'Oswald Variable', 'Oswald', system-ui, sans-serif;
+  --font-cuerpo: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+
+  /* ---- Espaciado base ---- */
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-8: 3rem;
+
+  /* ---- Bordes / radios ---- */
+  --radio-sm: 0.4rem;
+  --radio-md: 0.6rem;
+  --radio-lg: 0.9rem;
+  --radio-pill: 999px;
+
+  /* ---- Sombras ---- */
+  --sombra-sm: 0 0.1rem 0.3rem rgba(0,0,0,0.08);
+  --sombra-md: 0 0.3rem 0.8rem rgba(0,0,0,0.1);
+  --sombra-lg: 0 0.6rem 1.6rem rgba(0,0,0,0.12);
+
+  /* ---- Transiciones ---- */
+  --trans-rapida: 100ms ease;
+  --trans-normal: 180ms ease;
+  --trans-lenta: 280ms ease;
+}
+
+/* ---- Reset / base ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-cuerpo);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--asfalto);
+  background: var(--hormigon);
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--naranja-obra);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 0.2rem solid var(--naranja-obra);
+  outline-offset: 0.15rem;
+  border-radius: 0.2rem;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---- Utilidades ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contenedor {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 var(--espacio-4);
+}
+
+.visualmente-oculto {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
