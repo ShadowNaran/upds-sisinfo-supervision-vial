@@ -51,6 +51,13 @@ public static class AppDbSeeder
         var tramo2 = tramos[1].IdTramo;
         var tramo3 = tramos[2].IdTramo;
 
+        db.Personal.AddRange(
+            new Personal { NombreCompleto = "María López Quispe", Documento = "CI-1001", Cargo = "Cuadrilla vial", IdTramo = tramo1 },
+            new Personal { NombreCompleto = "José Mamani Rojas", Documento = "CI-1002", Cargo = "Operador", IdTramo = tramo1 },
+            new Personal { NombreCompleto = "Ana Flores Vargas", Documento = "CI-2001", Cargo = "Ayudante", IdTramo = tramo2 },
+            new Personal { NombreCompleto = "Luis Condori Nina", Documento = "CI-3001", Cargo = "Señalización", IdTramo = tramo3 });
+        db.SaveChanges();
+
         var usuarios = new[]
         {
             new Usuario

@@ -12,7 +12,7 @@ namespace Arooaf.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Administrador")]
+[Authorize(Roles = "Administrador,SupervisorCampo,PersonalMicroempresa")]
 public class TramosController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -28,6 +28,9 @@ public class TramosController : ControllerBase
         [FromQuery] bool? activo = null)
     {
         var query = _db.Tramos.AsNoTracking().AsQueryable();
+
+        if (!User.IsInRole("Administrador") && Guid.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var usuarioId))
+            query = query.Where(t => t.Usuarios.Any(u => u.IdUsuario == usuarioId));
 
         if (activo.HasValue)
             query = query.Where(t => t.Activo == activo.Value);

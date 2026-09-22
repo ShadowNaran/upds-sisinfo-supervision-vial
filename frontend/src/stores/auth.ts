@@ -11,9 +11,22 @@ const ROL_POR_DEFECTO: Record<Rol, string> = {
   PersonalMicroempresa: '/campo',
 }
 
+const INACTIVIDAD_MS = 30 * 60 * 1000
+
 export const useAuthStore = defineStore('auth', () => {
   const estado = ref<EstadoSesion>('indefinido')
   const perfil = ref<Perfil | null>(null)
+  let temporizadorInactividad: ReturnType<typeof setTimeout> | undefined
+
+  function programarExpiracionPorInactividad(): void {
+    if (temporizadorInactividad) clearTimeout(temporizadorInactividad)
+    if (estado.value !== 'autenticado') return
+    temporizadorInactividad = setTimeout(() => { void logout() }, INACTIVIDAD_MS)
+  }
+
+  function registrarActividad(): void {
+    if (estado.value === 'autenticado') programarExpiracionPorInactividad()
+  }
 
   const estaAutenticado = () => estado.value === 'autenticado'
 
@@ -29,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (sesion && sesionVigente(sesion)) {
       perfil.value = sesion.perfil
       estado.value = 'autenticado'
+      programarExpiracionPorInactividad()
     } else {
       if (sesion && !sesionVigente(sesion)) {
         await borrarSesionLocal()
@@ -60,6 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
     await salvarSesion(nuevoPerfil)
     perfil.value = nuevoPerfil
     estado.value = 'autenticado'
+    programarExpiracionPorInactividad()
     return nuevoPerfil
   }
 
@@ -68,6 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
     await borrarSesionLocal()
     perfil.value = null
     estado.value = 'anonimo'
+    if (temporizadorInactividad) clearTimeout(temporizadorInactividad)
   }
 
   // traduce un error de red http en mensaje amigable para el formulario
@@ -83,6 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
     init,
     login,
     logout,
+    registrarActividad,
     traducirError,
   }
 })

@@ -11,6 +11,9 @@ public class AppDbContext : DbContext
 
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<Tramo> Tramos { get; set; }
+    public DbSet<Personal> Personal { get; set; }
+    public DbSet<Planilla> Planillas { get; set; }
+    public DbSet<PlanillaDetalle> PlanillaDetalles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,6 +76,42 @@ public class AppDbContext : DbContext
             entity.HasIndex(t => t.Codigo)
                 .IsUnique()
                 .HasDatabaseName("ix_tramos_codigo");
+        });
+
+        modelBuilder.Entity<Personal>(entity =>
+        {
+            entity.ToTable("personal");
+            entity.HasKey(p => p.IdPersonal);
+            entity.Property(p => p.NombreCompleto).HasMaxLength(200).IsRequired();
+            entity.Property(p => p.Documento).HasMaxLength(50).IsRequired();
+            entity.Property(p => p.Cargo).HasMaxLength(120);
+            entity.Property(p => p.Telefono).HasMaxLength(40);
+            entity.HasIndex(p => new { p.Documento, p.IdTramo }).IsUnique();
+            entity.HasOne(p => p.Tramo).WithMany(t => t.Personal).HasForeignKey(p => p.IdTramo).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Planilla>(entity =>
+        {
+            entity.ToTable("planillas");
+            entity.HasKey(p => p.IdPlanilla);
+            entity.Property(p => p.Estado).HasConversion<int>();
+            entity.Property(p => p.Observaciones).HasMaxLength(1000);
+            entity.Property(p => p.FirmaBase64).HasColumnType("text");
+            entity.HasIndex(p => new { p.IdTramo, p.Fecha }).IsUnique();
+            entity.HasOne(p => p.Tramo).WithMany(t => t.Planillas).HasForeignKey(p => p.IdTramo).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PlanillaDetalle>(entity =>
+        {
+            entity.ToTable("planilla_detalles");
+            entity.HasKey(d => d.IdDetalle);
+            entity.Property(d => d.Estado).HasConversion<int>();
+            entity.Property(d => d.Observacion).HasMaxLength(500);
+            entity.Property(d => d.Clasificacion).HasMaxLength(100);
+            entity.Property(d => d.FotoBase64).HasColumnType("text");
+            entity.HasIndex(d => new { d.IdPlanilla, d.IdPersonal }).IsUnique();
+            entity.HasOne(d => d.Planilla).WithMany(p => p.Detalles).HasForeignKey(d => d.IdPlanilla).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(d => d.Personal).WithMany(p => p.PlanillaDetalles).HasForeignKey(d => d.IdPersonal).OnDelete(DeleteBehavior.Restrict);
         });
 
         // relacion muchos a muchos usuario tramo

@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted, ref, readonly, computed } from 'vue'
 import { contarPendientes } from '@/services/pendingSync'
+import { sincronizarPendientes } from '@/services/sync'
 
 type EstadoConexion = 'online' | 'offline' | 'online-con-pendientes'
 
@@ -8,6 +9,7 @@ const pendientes = ref(0)
 
 function actualizarEnLinea(): void {
   enLinea.value = typeof navigator !== 'undefined' ? navigator.onLine : true
+  if (enLinea.value) void sincronizarPendientes()
 }
 
 async function actualizarPendientes(): Promise<void> {

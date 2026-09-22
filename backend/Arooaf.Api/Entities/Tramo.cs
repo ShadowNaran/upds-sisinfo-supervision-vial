@@ -15,4 +15,8 @@ public class Tramo
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
     public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+
+    public ICollection<Personal> Personal { get; set; } = new List<Personal>();
+
+    public ICollection<Planilla> Planillas { get; set; } = new List<Planilla>();
 }

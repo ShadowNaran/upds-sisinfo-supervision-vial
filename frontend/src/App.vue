@@ -14,6 +14,9 @@ useConnection() // inicializa listeners conexion y pendientes para ConnectionBad
 
 onMounted(async () => {
   await auth.init()
+  for (const evento of ['pointerdown', 'keydown', 'touchstart']) {
+    window.addEventListener(evento, auth.registrarActividad)
+  }
 })
 
 const esLogin = computed(() => route.name === 'login')
