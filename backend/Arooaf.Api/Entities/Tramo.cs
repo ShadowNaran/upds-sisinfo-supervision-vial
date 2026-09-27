@@ -10,6 +10,13 @@ public class Tramo
 
     public string? Descripcion { get; set; }
 
+    public double LatitudInicio { get; set; }
+    public double LongitudInicio { get; set; }
+    public double LatitudFin { get; set; }
+    public double LongitudFin { get; set; }
+    public int KmInicio { get; set; }
+    public int KmFin { get; set; }
+
     public bool Activo { get; set; } = true;
 
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;

@@ -1,5 +1,4 @@
-// cola de sincronizacion offline simple hu-04 hu-17 hu-18
-// usa localStorage en lugar de IndexedDB para simplicidad
+// cola local para sincronizar datos pendientes
 
 const CLAVE_COLA = 'aroomaf.cola-sync'
 
@@ -7,7 +6,7 @@ export type EstadoSync = 'pendiente' | 'enviando' | 'sincronizado' | 'error'
 
 export interface ItemCola {
   id: string
-  tipo: 'planilla' | 'evento' | 'firma' | 'foto'
+  tipo: 'planilla' | 'evento' | 'firma' | 'foto' | 'personal_manual'
   payload: unknown
   estado: EstadoSync
   prioridad: 'alta' | 'normal'
@@ -16,7 +15,7 @@ export interface ItemCola {
   error?: string
 }
 
-// obtiene la cola completa de localStorage
+// lee la cola local
 function obtenerColaStorage(): ItemCola[] {
   const bruto = localStorage.getItem(CLAVE_COLA)
   if (!bruto) return []
@@ -27,16 +26,16 @@ function obtenerColaStorage(): ItemCola[] {
   }
 }
 
-// guarda la cola completa en localStorage
+// guarda la cola local
 function guardarColaStorage(cola: ItemCola[]): void {
   try {
     localStorage.setItem(CLAVE_COLA, JSON.stringify(cola))
   } catch {
-    // Ignorar errores de cuota
+    // ignora errores de almacenamiento lleno
   }
 }
 
-// guarda o actualiza un item en la cola
+// agrega o actualiza un elemento
 export async function guardarEnCola(item: ItemCola): Promise<void> {
   const cola = obtenerColaStorage()
   const idx = cola.findIndex(i => i.id === item.id)
@@ -48,13 +47,13 @@ export async function guardarEnCola(item: ItemCola): Promise<void> {
   guardarColaStorage(cola)
 }
 
-// obtiene items por estado
+// filtra elementos por estado
 export async function obtenerCola(estado?: EstadoSync): Promise<ItemCola[]> {
   const cola = obtenerColaStorage()
   return estado ? cola.filter(i => i.estado === estado) : cola
 }
 
-// obtiene items ordenados por prioridad alta primero y antiguedad
+// ordena por prioridad y antiguedad
 export async function obtenerColaOrdenada(): Promise<ItemCola[]> {
   const items = await obtenerCola()
   return items
@@ -65,7 +64,7 @@ export async function obtenerColaOrdenada(): Promise<ItemCola[]> {
     })
 }
 
-// actualiza el estado de un item
+// actualiza el estado de un elemento
 export async function actualizarEstadoCola(id: string, estado: EstadoSync, error?: string): Promise<void> {
   const cola = obtenerColaStorage()
   const item = cola.find(i => i.id === id)
@@ -77,26 +76,25 @@ export async function actualizarEstadoCola(id: string, estado: EstadoSync, error
   }
 }
 
-// elimina items sincronizados antiguos limpieza
-export async function limpiarSincronizados(antesDe = Date.now() - 7 * 86_400_000): Promise<number> {
+export async function reintentarItem(id: string): Promise<void> {
   const cola = obtenerColaStorage()
-  const inicial = cola.length
-  const filtrada = cola.filter(item => !(item.estado === 'sincronizado' && item.creadoEn < antesDe))
-  guardarColaStorage(filtrada)
-  return inicial - filtrada.length
+  const item = cola.find(i => i.id === id)
+  if (item) {
+    item.estado = 'pendiente'
+    item.reintentos = 0
+    item.error = undefined
+    guardarColaStorage(cola)
+  }
 }
 
-// cuenta items pendientes para badge hu-05
+// cuenta elementos pendientes y fallidos
 export async function contarPendientes(): Promise<number> {
   const pendientes = await obtenerCola('pendiente')
   const errores = await obtenerCola('error')
   return pendientes.length + errores.length
 }
 
-// genera id unico simple
+// genera un id unico
 export function generarId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
-
-// clave localStorage legacy compatibilidad
-export const CLAVE_COLA_LEGACY = CLAVE_COLA

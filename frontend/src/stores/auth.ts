@@ -6,7 +6,7 @@ import { mensajeDeError } from '@/services/mensajesError'
 import { borrarSesionLocal, cargarSesion, salvarSesion, sesionVigente } from '@/services/session'
 
 const ROL_POR_DEFECTO: Record<Rol, string> = {
-  Administrador: '/campo',
+  Administrador: '/panel',
   SupervisorCampo: '/campo',
   PersonalMicroempresa: '/campo',
 }
@@ -30,11 +30,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const estaAutenticado = () => estado.value === 'autenticado'
 
-  // ruta inicial segun el rol del usuario autenticado
+  // ruta inicial segun el rol
   const rutaInicial = (): string =>
     perfil.value ? ROL_POR_DEFECTO[perfil.value.rol] : '/login'
 
-  // restaura la sesion guardada en el dispositivo entrada sin conexion hu-01
+  // restaura la sesion local
   async function init(): Promise<void> {
     if (estado.value !== 'indefinido') return
 
@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // inicia sesion contra el servidor hu-01
+  // inicia sesion en el servidor
   async function login(credenciales: LoginCredenciales): Promise<Perfil> {
     const { data } = await api.post<{
       token: string
@@ -78,7 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
     return nuevoPerfil
   }
 
-  // cierra la sesion y limpia los datos locales base de hu-02
+  // cierra la sesion y borra los datos locales
   async function logout(): Promise<void> {
     await borrarSesionLocal()
     perfil.value = null
@@ -86,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (temporizadorInactividad) clearTimeout(temporizadorInactividad)
   }
 
-  // traduce un error de red http en mensaje amigable para el formulario
+  // convierte errores de red en mensajes para el formulario
   function traducirError(error: unknown): string {
     return mensajeDeError(error, !navigator.onLine)
   }

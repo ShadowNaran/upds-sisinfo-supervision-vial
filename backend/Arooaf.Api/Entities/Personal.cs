@@ -11,5 +11,13 @@ public class Personal
     public Tramo? Tramo { get; set; }
     public bool Activo { get; set; } = true;
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+    public EstadoValidacionPersonal EstadoValidacion { get; set; } = EstadoValidacionPersonal.PendienteValidacion;
     public ICollection<PlanillaDetalle> PlanillaDetalles { get; set; } = new List<PlanillaDetalle>();
+}
+
+public enum EstadoValidacionPersonal
+{
+    Aprobado = 0,
+    PendienteValidacion = 1,
+    Rechazado = 2
 }

@@ -1,16 +1,16 @@
-// almacenamiento local simple sin cifrado para datos de sesion
-// nivel estudiante 2do año localStorage plano
+// sesion local sin cifrar
 
-// guarda un valor en localStorage como JSON
+
+// guarda un valor local
 export async function guardarCifrado<T>(clave: string, valor: T): Promise<void> {
   try {
     localStorage.setItem(clave, JSON.stringify(valor))
   } catch {
-    // Ignorar errores de cuota
+    // ignora errores de almacenamiento lleno
   }
 }
 
-// lee un valor de localStorage y lo parsea como JSON
+// lee un valor local
 export async function leerCifrado<T>(clave: string): Promise<T | null> {
   const bruto = localStorage.getItem(clave)
   if (!bruto) return null
@@ -23,7 +23,7 @@ export async function leerCifrado<T>(clave: string): Promise<T | null> {
   }
 }
 
-// elimina un valor de localStorage
+// elimina un valor local
 export function eliminarCifrado(clave: string): void {
   localStorage.removeItem(clave)
 }

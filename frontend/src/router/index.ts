@@ -25,6 +25,18 @@ const router = createRouter({
       meta: { roles: ['Administrador', 'SupervisorCampo', 'PersonalMicroempresa'], titulo: 'Modulo de campo' },
     },
     {
+      path: '/panel',
+      name: 'panel',
+      component: () => import('@/views/PanelDashboard.vue'),
+      meta: { roles: ['Administrador', 'SupervisorCampo'], titulo: 'Panel Oficina Central' },
+    },
+    {
+      path: '/panel/reporte/:id',
+      name: 'reporte_diario',
+      component: () => import('@/views/ReporteDiario.vue'),
+      meta: { roles: ['Administrador', 'SupervisorCampo'], titulo: 'Reporte Diario' },
+    },
+    {
       path: '/',
       redirect: '/login',
     },

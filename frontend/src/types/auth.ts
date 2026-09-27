@@ -5,9 +5,9 @@ export interface Perfil {
   rol: Rol
   nombre: string
   username: string
-  /** ISO 8601 UTC de expiracion del token. */
+  /** expiracion del token en utc (iso 8601) */
   expiresAt: string
-  /** Segundos que restan de vigencia. */
+  /** segundos restantes de vigencia */
   expiresInSeconds: number
 }
 

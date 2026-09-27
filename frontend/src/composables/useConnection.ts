@@ -26,7 +26,7 @@ function suscribir(): void {
   if (listeners.size === 0) {
     window.addEventListener('online', actualizarEnLinea)
     window.addEventListener('offline', actualizarEnLinea)
-    // actualizar pendientes cada 2s cumple requisito menos 3s
+    // actualiza pendientes cada 2 segundos
     setInterval(actualizarPendientes, 2000)
     actualizarPendientes()
   }
@@ -54,7 +54,7 @@ const etiqueta = computed(() => {
   }
 })
 
-// composable para hu-05 estado de red y contador de pendientes
+// estado de conexion y pendientes
 export function useConnection() {
   onMounted(() => {
     suscribir()
@@ -71,7 +71,7 @@ export function useConnection() {
   }
 }
 
-// version simple para componentes que solo necesitan estado online
+// estado de conexion sin contador
 export function useOnline() {
   onMounted(suscribir)
   onUnmounted(desuscribir)

@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Arooaf.Api.Data;
 
-// fabrica de tiempo de diseño usada por dotnet ef migrations para generar
-// migraciones sin necesidad de ejecutar la aplicacion
+// permite crear migraciones sin iniciar la aplicacion
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
@@ -15,7 +14,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
             .Build();
 
         var connectionString = config.GetConnectionString("Default")
-            ?? "Host=localhost;Port=5432;Database=AROOMAF;Username=postgres;Password=postgres;";
+            ?? "Host=localhost;Database=ArooafDB;Username=postgres;Password=TU_PASSWORD_AQUI";
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(connectionString)

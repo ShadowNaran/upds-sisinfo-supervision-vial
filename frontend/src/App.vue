@@ -1,19 +1,45 @@
-<script setup lang="ts">
-import { onMounted, computed } from 'vue'
+﻿<script setup lang="ts">
+import { onMounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useConnection } from '@/composables/useConnection'
-import AppBrand from '@/components/AppBrand.vue'
-import ConnectionBadge from '@/components/ConnectionBadge.vue'
 import UpdatePrompt from '@/components/UpdatePrompt.vue'
+import BandejaSync from '@/components/BandejaSync.vue'
+import AlertaCritica from '@/components/AlertaCritica.vue'
+import { initSignalR } from '@/services/signalr'
 
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
-useConnection() // inicializa listeners conexion y pendientes para ConnectionBadge
+const { pendientes } = useConnection() // estado de conexion y pendientes
+const mostrarBandeja = ref(false)
+
+const installPrompt = ref<any>(null)
+const mostrarInstalar = ref(false)
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  installPrompt.value = e
+  mostrarInstalar.value = true
+})
+
+async function instalarPWA() {
+  if (!installPrompt.value) return
+  installPrompt.value.prompt()
+  const { outcome } = await installPrompt.value.userChoice
+  if (outcome === 'accepted') {
+    mostrarInstalar.value = false
+    installPrompt.value = null
+  }
+}
 
 onMounted(async () => {
   await auth.init()
+  if (auth.perfil) {
+    if (auth.perfil.rol === 'Administrador') {
+      initSignalR()
+    }
+  }
   for (const evento of ['pointerdown', 'keydown', 'touchstart']) {
     window.addEventListener(evento, auth.registrarActividad)
   }
@@ -23,15 +49,6 @@ const esLogin = computed(() => route.name === 'login')
 const esCampo = computed(() => route.name === 'campo')
 const esPanel = computed(() => route.name === 'panel')
 
-const rolLabel = computed(() => {
-  if (!auth.perfil) return ''
-  switch (auth.perfil.rol) {
-    case 'Administrador': return 'Administrador'
-    case 'SupervisorCampo': return 'Supervisor'
-    case 'PersonalMicroempresa': return 'Personal'
-    default: return auth.perfil.rol
-  }
-})
 
 async function cerrarSesion() {
   await auth.logout()
@@ -41,21 +58,47 @@ async function cerrarSesion() {
 
 <template>
   <div class="app">
-    <header class="app__header" v-if="!esLogin">
-      <div class="app__header-izq">
-        <AppBrand compacto />
-        <span class="app__titulo-ruta" v-if="esCampo">Modulo de campo</span>
-        <span class="app__titulo-ruta" v-if="esPanel">Panel de oficina</span>
-      </div>
-      <div class="app__header-der">
-        <ConnectionBadge />
-        <div class="app__usuario" v-if="auth.perfil">
-          <span class="app__nombre">{{ auth.perfil.nombre }}</span>
-          <span class="app__rol">{{ rolLabel }}</span>
-        </div>
-        <button v-if="auth.perfil" class="app__logout" @click="cerrarSesion" aria-label="Cerrar sesion">
-          Cerrar sesion
+    <!-- encabezado -->
+    <header class="topbar" v-if="!esLogin">
+      <div class="topbar-inner">
+        <!-- marca -->
+        <button class="brand" @click="$router.push(auth.rutaInicial())" aria-label="AROOMAF inicio">
+          <span class="brand-mark"><span /><span /><span /></span>
+          <span>AROOMAF<small>SUPERVISIÓN VIAL</small></span>
         </button>
+
+        <!-- navegacion -->
+        <nav class="main-nav" aria-label="Navegacion principal">
+          <button
+            :class="{ active: esPanel || esCampo === false && !esLogin }"
+            @click="$router.push('/panel')"
+            v-if="auth.perfil?.rol === 'Administrador' || auth.perfil?.rol === 'SupervisorCampo'"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="18" rx="2" /><path d="M9 4V2h6v2M9 10h6m-6 4h6m-6 4h4"/></svg>
+            Panel central
+          </button>
+          <button
+            :class="{ active: esCampo }"
+            @click="$router.push('/campo')"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/></svg>
+            Vista de campo
+          </button>
+        </nav>
+
+        <!-- acciones -->
+        <div class="header-actions">
+          <button class="connection" style="border:none;cursor:pointer;" @click="mostrarBandeja = true" :title="pendientes > 0 ? `${pendientes} pendientes` : 'Sincronizado'">
+            <span class="pulse" />
+            <div>
+              <b>{{ pendientes > 0 ? `${pendientes} PENDIENTE${pendientes > 1 ? 'S' : ''}` : 'EN LÍNEA' }}</b>
+              <small>{{ pendientes > 0 ? 'Toca para ver cola' : 'Sincronizado ahora' }}</small>
+            </div>
+          </button>
+          <div class="avatar" v-if="auth.perfil" :title="auth.perfil.nombre">
+            {{ auth.perfil.nombre.split(' ').map((n: string) => n[0]).slice(0,2).join('') }}
+          </div>
+        </div>
       </div>
     </header>
 
@@ -67,7 +110,21 @@ async function cerrarSesion() {
       </RouterView>
     </main>
 
+    <footer v-if="!esLogin">
+      <div class="brand" aria-label="AROOMAF">
+        <span class="brand-mark"><span /><span /><span /></span>
+        <span>AROOMAF<small>SUPERVISIÓN VIAL</small></span>
+      </div>
+      <span class="footer-meta">AROOMAF · Sistema de Supervisión Vial · v2.4.1</span>
+      <div class="footer-actions">
+        <button v-if="mostrarInstalar" @click="instalarPWA" style="background:var(--green); color:white; border:none; padding:4px 10px; border-radius:4px; font-weight:600; cursor:pointer;">Instalar App</button>
+        <button @click="cerrarSesion" v-if="auth.perfil">Cerrar sesion</button>
+      </div>
+    </footer>
+
     <UpdatePrompt />
+    <BandejaSync v-if="mostrarBandeja" @cerrar="mostrarBandeja = false" />
+    <AlertaCritica />
   </div>
 </template>
 
@@ -78,6 +135,10 @@ async function cerrarSesion() {
   flex-direction: column;
   background: var(--hormigon);
 }
+.app__main { flex: 1; }
+.fade-enter-active, .fade-leave-active { transition: opacity 180ms ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.footer-actions { display:flex; gap:12px; padding-bottom:12px; }
 
 .app__header {
   display: flex;
@@ -109,6 +170,19 @@ async function cerrarSesion() {
   align-items: center;
   gap: 0.85rem;
   flex-wrap: wrap;
+}
+
+.app__btn-badge {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  outline: none;
+}
+.app__btn-badge:focus-visible {
+  outline: 0.2rem solid var(--amarillo-ruta);
+  outline-offset: 0.1rem;
 }
 
 .app__usuario {

@@ -10,5 +10,9 @@ public class ObtenerTramoOutput
 
     public string? Descripcion { get; set; }
 
+    public int KmInicio { get; set; }
+
+    public int KmFin { get; set; }
+
     public bool Activo { get; set; }
 }

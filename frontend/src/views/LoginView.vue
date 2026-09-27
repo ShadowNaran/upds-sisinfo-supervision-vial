@@ -5,8 +5,6 @@ import { useOnline } from '@/composables/useConnection'
 import { useAuthStore } from '@/stores/auth'
 import type { ErroresLogin } from '@/validators/login'
 import { tieneErrores, validarLogin } from '@/validators/login'
-import AppBrand from '@/components/AppBrand.vue'
-import ConnectionBadge from '@/components/ConnectionBadge.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -66,384 +64,309 @@ function revalidar(campo: 'username' | 'password'): void {
 </script>
 
 <template>
-  <main class="login">
-    <section class="login__brand" aria-label="Presentacion de AROOMAF">
-      <div class="login__brand-contenido">
-        <AppBrand claro />
-
-        <div class="login__lema">
-          <h1 class="login__titulo">Tu tramo, al dia.</h1>
-          <p class="login__parrafo">
-            Registro de asistencia y estado de la ruta desde la misma obra,
-            con o sin senal.
-          </p>
-        </div>
-
-        <p class="login__institucion">Sistemas de Informacion I - UPDS Tarija</p>
+  <main class="login-page">
+    <section class="login-visual" aria-label="Presentacion AROOMAF">
+      <button class="brand" aria-label="AROOMAF inicio">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span style="color:white">AROOMAF<small style="color:#899195">SUPERVISION VIAL</small></span>
+      </button>
+      <div class="road-art" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="login-message">
+        <p>CONTROL EN CADA KILOMETRO</p>
+        <h1>Carreteras seguras.<br>Decisiones claras.</h1>
+        <span>Supervision vial y evidencia de campo, incluso sin conexion.</span>
       </div>
-      <div class="login__rutas" aria-hidden="true">
-        <span class="login__ruta login__ruta--1" />
-        <span class="login__ruta login__ruta--2" />
-        <span class="login__ruta login__ruta--3" />
+      <div class="visual-footer">
+        <span>ADMINISTRADORA BOLIVIANA DE CARRETERAS</span>
+        <div class="connection" style="background:#ffffff0c;border-color:#ffffff20;">
+          <span class="pulse"></span>
+          <div>
+            <b style="color:#b9e9cf">EN LINEA</b>
+            <small style="color:#85918b">Sistema disponible</small>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="login__panel" aria-label="Acceso al sistema">
-      <div class="login__tarjeta">
-        <header class="login__superior">
-          <AppBrand compacto class="login__marca-movil" />
-          <ConnectionBadge />
-        </header>
-
-        <h2 class="login__ingreso">Iniciar sesion</h2>
-        <p class="login__ayuda">
-          Usa el usuario y la contrasena que te asigno la oficina central.
-        </p>
-
-        <form class="login__form" novalidate @submit.prevent="enviar">
-          <div class="campo" :class="{ 'campo--error': errores.username }">
-            <label class="campo__etiqueta" for="username">Usuario</label>
-            <input
-              id="username"
-              v-model="formulario.username"
-              class="campo__control"
-              type="text"
-              name="username"
-              autocomplete="username"
-              inputmode="text"
-              autocapitalize="none"
-              spellcheck="false"
-              :aria-invalid="Boolean(errores.username)"
-              aria-describedby="error-username"
-              @input="revalidar('username')"
-            />
-            <p v-if="errores.username" id="error-username" class="campo__mensaje" role="alert">
-              {{ errores.username }}
-            </p>
-          </div>
-
-          <div class="campo" :class="{ 'campo--error': errores.password }">
-            <label class="campo__etiqueta" for="password">Contrasena</label>
-            <div class="campo__con-ojo">
-              <input
-                id="password"
-                v-model="formulario.password"
-                class="campo__control"
-                :type="verContrasena ? 'text' : 'password'"
-                name="password"
-                autocomplete="current-password"
-                :aria-invalid="Boolean(errores.password)"
-                aria-describedby="error-password"
-                @input="revalidar('password')"
-              />
-              <button
-                type="button"
-                class="campo__ojo"
-                :aria-label="verContrasena ? 'Ocultar contrasena' : 'Mostrar contrasena'"
-                :aria-pressed="verContrasena"
-                @click="verContrasena = !verContrasena"
-              >
-                {{ verContrasena ? 'Ocultar' : 'Ver' }}
+    <section class="login-form" aria-label="Acceso al sistema">
+      <div class="mobile-brand">
+        <button class="brand">
+          <span class="brand-mark"><span></span><span></span><span></span></span>
+          <span>AROOMAF<small>SUPERVISION VIAL</small></span>
+        </button>
+      </div>
+      <div class="form-wrap">
+        <p class="eyebrow">BIENVENIDO DE NUEVO</p>
+        <h2>Iniciar sesion</h2>
+        <p>Ingresa tus credenciales para acceder al sistema.</p>
+        <form novalidate @submit.prevent="enviar">
+          <label for="username">USUARIO
+            <div class="login-input" :style="errores.username ? 'border-color:var(--red)' : ''">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg>
+              <input id="username" v-model="formulario.username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" :aria-invalid="Boolean(errores.username)" @input="revalidar('username')" placeholder="usuario@aroomaf.bo" />
+            </div>
+            <span v-if="errores.username" style="display:block;font:600 10px Archivo;color:var(--red);margin-top:4px;">{{ errores.username }}</span>
+          </label>
+          <label for="password">CONTRASENA
+            <div class="login-input" :style="errores.password ? 'border-color:var(--red)' : ''">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></svg>
+              <input id="password" v-model="formulario.password" :type="verContrasena ? 'text' : 'password'" autocomplete="current-password" :aria-invalid="Boolean(errores.password)" @input="revalidar('password')" />
+              <button type="button" @click="verContrasena = !verContrasena" :aria-label="verContrasena ? 'Ocultar' : 'Mostrar'">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12"/><circle cx="12" cy="12" r="2.5"/></svg>
               </button>
             </div>
-            <p v-if="errores.password" id="error-password" class="campo__mensaje" role="alert">
-              {{ errores.password }}
-            </p>
-          </div>
-
-          <div v-if="errorServidor" class="login__error" role="alert">
+            <span v-if="errores.password" style="display:block;font:600 10px Archivo;color:var(--red);margin-top:4px;">{{ errores.password }}</span>
+          </label>
+          <div v-if="errorServidor" role="alert" style="margin:12px 0;padding:10px 12px;background:color-mix(in srgb, var(--red) 10%, transparent);border-left:3px solid var(--red);border-radius:6px;font:600 11px Archivo;color:var(--red);">
             {{ errorServidor }}
           </div>
-
-          <button type="submit" class="login__boton" :disabled="enviando">
-            {{ botonTexto }}
+          <div class="remember">
+            <label><input type="checkbox" /> Recordarme</label>
+            <details style="font-size:10px;">
+              <summary style="cursor:pointer;color:var(--orange);font-weight:600;">Cuentas de prueba</summary>
+              <div style="margin-top:6px;line-height:1.7;color:#666;">
+                <div><b>admin</b> / Admin.123!</div>
+                <div><b>supervisor</b> / Sup.123!</div>
+                <div><b>personal</b> / Per.123!</div>
+              </div>
+            </details>
+          </div>
+          <button type="submit" class="login-button" :disabled="enviando">
+            {{ botonTexto.toUpperCase() }}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
           </button>
+          <small class="secure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></svg>
+            Conexion segura y datos protegidos
+          </small>
         </form>
-
-        <details class="login__demo">
-          <summary>Cuentas de prueba</summary>
-          <ul>
-            <li><strong>admin</strong> / Admin.123! - Administracion</li>
-            <li><strong>supervisor</strong> / Sup.123! - Supervisor de campo</li>
-            <li><strong>personal</strong> / Per.123! - Personal de microempresa</li>
-          </ul>
-        </details>
       </div>
     </section>
   </main>
 </template>
 
 <style scoped>
-.login {
-  min-height: 100dvh;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  background: var(--hormigon);
+/* acceso */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', 'Archivo', sans-serif;
+  background: #0f172a;
 }
 
-/* panel de marca */
-.login__brand {
+/* panel visual */
+.login-visual {
+  flex: 1;
   position: relative;
   overflow: hidden;
-  background: var(--asfalto);
-  color: var(--hogar);
-  padding: 1.6rem 1.5rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 60px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: white;
 }
 
-.login__rutas {
+.login-visual::before {
+  content: "";
   position: absolute;
-  inset: 0;
-  pointer-events: none;
+  top: -10%;
+  left: -20%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(233, 80, 14, 0.15) 0%, transparent 60%);
+  filter: blur(80px);
+  z-index: 0;
+  animation: float 12s ease-in-out infinite;
 }
 
-.login__ruta {
+.login-visual::after {
+  content: "";
   position: absolute;
-  left: -10%;
-  width: 120%;
-  border-top: 0.22rem dashed color-mix(in srgb, var(--amarillo-ruta) 38%, transparent);
-  transform: rotate(-14deg);
+  bottom: -20%;
+  right: -20%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 60%);
+  filter: blur(80px);
+  z-index: 0;
+  animation: float 10s ease-in-out infinite reverse;
 }
 
-.login__ruta--1 { top: 46%; }
-.login__ruta--2 { top: 58%; }
-.login__ruta--3 { top: 70%; }
-
-.login__lema {
-  margin-top: 2.6rem;
-  max-width: 34ch;
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -40px) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
-.login__titulo {
-  font-family: var(--font-titulo);
+.login-visual * {
+  position: relative;
+  z-index: 1;
+}
+
+.login-message {
+  margin: auto 0;
+}
+.login-message h1 {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.login-message p {
+  color: #e9500e;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: clamp(2rem, 8vw, 2.6rem);
-  line-height: 1.05;
-  color: var(--hogar);
-  margin: 0;
+  letter-spacing: 0.1em;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.login-message span {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  max-width: 400px;
+  display: block;
 }
 
-.login__parrafo {
-  margin-top: 0.9rem;
-  font-size: 1.02rem;
-  line-height: 1.5;
-  color: color-mix(in srgb, var(--hogar) 84%, transparent);
+/* formulario */
+.login-form {
+  flex: 0 0 480px;
+  background: rgba(255, 255, 255, 0.98);
+  display: flex;
+  flex-direction: column;
+  padding: 60px;
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }
 
-.login__institucion {
-  margin-top: 1.6rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--hogar) 68%, transparent);
+.form-wrap {
+  margin: auto 0;
+}
+.form-wrap h2 {
+  font-size: 2rem;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.form-wrap p {
+  color: #64748b;
+  margin-bottom: 30px;
+}
+.form-wrap .eyebrow {
+  color: #e9500e;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
 }
 
-/* panel del formulario */
-.login__panel {
-  display: grid;
-  place-items: start center;
-  padding: 2.2rem 1.25rem 3rem;
+/* campos */
+.form-wrap > form > label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #64748b;
+  margin-top: 28px;
 }
 
-.login__tarjeta {
-  width: 100%;
-  max-width: 26rem;
-}
-
-.login__superior {
+.login-input {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  background: #f1f5f9;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 16px 22px;
+  margin-top: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
 }
-
-.login__ingreso {
-  font-family: var(--font-titulo);
-  font-weight: 600;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--asfalto);
-  margin: 2rem 0 0.35rem;
+.login-input:hover {
+  background: #e2e8f0;
 }
-
-.login__ayuda {
-  font-size: 0.95rem;
-  color: color-mix(in srgb, var(--asfalto) 72%, transparent);
-  margin: 0 0 1.6rem;
+.login-input:focus-within {
+  border-color: #e9500e;
+  background: #ffffff;
+  box-shadow: 0 15px 35px -5px rgba(233, 80, 14, 0.15), 0 10px 15px -5px rgba(233, 80, 14, 0.1);
+  transform: translateY(-2px);
 }
-
-/* campo de formulario */
-.campo {
-  margin-bottom: 1.15rem;
-}
-
-.campo__etiqueta {
-  display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--asfalto);
-  margin-bottom: 0.4rem;
-}
-
-.campo__control {
-  width: 100%;
-  min-height: 3.4rem;
-  padding: 0 1rem;
-  font: inherit;
-  font-size: 1rem;
-  color: var(--asfalto);
-  background: var(--hormigon);
-  border: 0.14rem solid var(--linea);
-  border-radius: 0.6rem;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-}
-
-.campo__control:focus-visible {
-  outline: none;
-  border-color: var(--naranja-obra);
-  box-shadow: 0 0 0 0.22rem color-mix(in srgb, var(--naranja-obra) 28%, transparent);
-}
-
-.campo--error .campo__control {
-  border-color: var(--rojo-senal);
-}
-
-.campo__con-ojo {
-  position: relative;
-}
-
-.campo__con-ojo .campo__control {
-  padding-right: 4.6rem;
-}
-
-.campo__ojo {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
-  height: 2.5rem;
-  padding: 0 0.9rem;
-  font: 600 0.82rem/1 var(--font-cuerpo);
-  color: var(--asfalto);
+.login-input input {
+  border: none;
   background: transparent;
-  border: 0;
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
-.campo__ojo:hover {
-  background: color-mix(in srgb, var(--asfalto) 6%, transparent);
-}
-
-.campo__mensaje {
-  margin: 0.4rem 0 0;
-  font-size: 0.84rem;
+  flex: 1;
+  outline: none;
+  font-size: 16px;
+  color: #0f172a;
+  margin-left: 16px;
   font-weight: 600;
-  color: var(--rojo-senal);
+}
+.login-input input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+.login-input svg {
+  color: #94a3b8;
+  transition: color 0.3s ease;
+}
+.login-input:focus-within svg {
+  color: #e9500e;
 }
 
-/* errores y accion */
-.login__error {
-  margin: 0.4rem 0 1.1rem;
-  padding: 0.8rem 1rem;
-  border-radius: 0.6rem;
-  border-left: 0.32rem solid var(--rojo-senal);
-  background: color-mix(in srgb, var(--rojo-senal) 10%, transparent);
-  color: color-mix(in srgb, var(--rojo-senal) 92%, #000);
-  font-size: 0.92rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.login__boton {
+/* boton */
+.login-button {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
   width: 100%;
-  min-height: 3.6rem;
-  margin-top: 0.4rem;
-  font: 700 1.12rem var(--font-titulo);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--hogar);
-  background: var(--naranja-obra);
-  border: 0;
-  border-radius: 0.6rem;
-  cursor: pointer;
-  transition: background 120ms ease, transform 80ms ease;
-}
-
-.login__boton:not(:disabled):hover {
-  background: var(--naranja-obra-oscuro);
-}
-
-.login__boton:not(:disabled):active {
-  transform: translateY(1px);
-}
-
-.login__boton:focus-visible {
-  outline: 0.22rem solid var(--asfalto);
-  outline-offset: 0.18rem;
-}
-
-.login__boton:disabled {
-  opacity: 0.65;
-  cursor: progress;
-}
-
-.login__demo {
-  margin-top: 1.8rem;
-  font-size: 0.85rem;
-  color: color-mix(in srgb, var(--asfalto) 66%, transparent);
-}
-
-.login__demo summary {
-  cursor: pointer;
   font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 32px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
+}
+.login-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(234, 88, 12, 0.35);
+}
+.login-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.login__demo ul {
-  margin: 0.6rem 0 0;
-  padding-left: 1.1rem;
-  line-height: 1.7;
+/* detalles */
+.remember {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+.remember label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+}
+.secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+  color: #94a3b8;
+  font-size: 12px;
 }
 
-/* escritorio */
-@media (min-width: 900px) {
-  .login {
-    grid-template-columns: 46% 54%;
-    grid-template-rows: 1fr;
-  }
-
-  .login__brand {
-    display: grid;
-    place-items: center;
-    padding: 3rem;
-  }
-
-  .login__brand-contenido {
-    max-width: 26rem;
-    width: 100%;
-  }
-
-  .login__lema {
-    margin-top: 3.4rem;
-  }
-
-  .login__panel {
-    place-items: center;
-    padding: 3rem;
-  }
-
-  .login__tarjeta {
-    max-width: 24rem;
-  }
-
-  .login__marca-movil {
-    display: none;
-  }
-}
-
-@media (max-width: 899px) {
-  .login__marca-movil {
-    display: inherit;
-  }
+@media (max-width: 900px) {
+  .login-page { flex-direction: column; }
+  .login-visual { display: none; }
+  .login-form { flex: 1; padding: 30px; box-shadow: none; }
 }
 </style>

@@ -14,4 +14,10 @@ public class CrearTramoInput
 
     [MaxLength(500, ErrorMessage = "la descripcion no puede exceder 500 caracteres")]
     public string? Descripcion { get; set; }
+
+    [Range(0, int.MaxValue, ErrorMessage = "el kilometro inicial debe ser mayor o igual a cero")]
+    public int KmInicio { get; set; }
+
+    [Range(0, int.MaxValue, ErrorMessage = "el kilometro final debe ser mayor o igual a cero")]
+    public int KmFin { get; set; }
 }

@@ -23,7 +23,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Usuario>().HasKey(u => u.IdUsuario);
         modelBuilder.Entity<Tramo>().HasKey(t => t.IdTramo);
 
-        // configuracion de usuario
+        // usuario
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.ToTable("usuarios");
@@ -57,7 +57,7 @@ public class AppDbContext : DbContext
                 .HasDatabaseName("ix_usuarios_email");
         });
 
-        // configuracion de tramo
+        // tramo
         modelBuilder.Entity<Tramo>(entity =>
         {
             entity.ToTable("tramos");
@@ -86,6 +86,7 @@ public class AppDbContext : DbContext
             entity.Property(p => p.Documento).HasMaxLength(50).IsRequired();
             entity.Property(p => p.Cargo).HasMaxLength(120);
             entity.Property(p => p.Telefono).HasMaxLength(40);
+            entity.Property(p => p.EstadoValidacion).HasConversion<int>().IsRequired();
             entity.HasIndex(p => new { p.Documento, p.IdTramo }).IsUnique();
             entity.HasOne(p => p.Tramo).WithMany(t => t.Personal).HasForeignKey(p => p.IdTramo).OnDelete(DeleteBehavior.Restrict);
         });
@@ -114,7 +115,7 @@ public class AppDbContext : DbContext
             entity.HasOne(d => d.Personal).WithMany(p => p.PlanillaDetalles).HasForeignKey(d => d.IdPersonal).OnDelete(DeleteBehavior.Restrict);
         });
 
-        // relacion muchos a muchos usuario tramo
+        // relacion entre usuarios y tramos
         modelBuilder.Entity<Usuario>()
             .HasMany(u => u.Tramos)
             .WithMany(t => t.Usuarios)

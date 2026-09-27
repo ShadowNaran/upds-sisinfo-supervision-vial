@@ -4,11 +4,11 @@ import router from '@/router'
 
 import App from './App.vue'
 
-// Fuentes variables (bundled para offline)
+// fuentes incluidas para uso sin conexion
 import '@fontsource-variable/oswald/wght.css'
 import '@fontsource-variable/archivo/wght.css'
 
-// Estilos globales
+// estilos globales
 import './style.css'
 
 const app = createApp(App)

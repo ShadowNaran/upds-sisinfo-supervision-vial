@@ -1,7 +1,6 @@
 import { AxiosError } from 'axios'
 
-// traduce un error de peticion a un mensaje entendible para el usuario
-// hu-01 tarea 9 401 sin conexion servidor caido errores de validacion
+// convierte errores http en mensajes para el usuario
 export function mensajeDeError(error: unknown, sinConexion = false): string {
   if (sinConexion) {
     return 'Sin conexion. Revisa tu senal e intentalo de nuevo.'

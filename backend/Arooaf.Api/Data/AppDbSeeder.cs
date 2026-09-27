@@ -11,7 +11,7 @@ public static class AppDbSeeder
             return;
         }
 
-        // crear tramos base
+        // tramos iniciales
         var tramos = new[]
         {
             new Tramo
@@ -20,6 +20,9 @@ public static class AppDbSeeder
                 Codigo = "TR-01",
                 Nombre = "Tramo 1: Carretera Principal - Km 0 a 50",
                 Descripcion = "Tramo principal de la carretera nacional",
+                LatitudInicio = -16.5000, LongitudInicio = -68.1500, // la paz
+                LatitudFin = -16.8000, LongitudFin = -68.4500, // laja
+                KmInicio = 0, KmFin = 50,
                 Activo = true,
                 FechaCreacion = DateTime.UtcNow
             },
@@ -29,6 +32,9 @@ public static class AppDbSeeder
                 Codigo = "TR-02",
                 Nombre = "Tramo 2: Ruta Alterna - Km 50 a 100",
                 Descripcion = "Ruta alterna por la zona norte",
+                LatitudInicio = -16.8000, LongitudInicio = -68.4500,
+                LatitudFin = -17.1000, LongitudFin = -68.7500,
+                KmInicio = 50, KmFin = 100,
                 Activo = true,
                 FechaCreacion = DateTime.UtcNow
             },
@@ -38,6 +44,9 @@ public static class AppDbSeeder
                 Codigo = "TR-03",
                 Nombre = "Tramo 3: Acceso Sur - Km 100 a 150",
                 Descripcion = "Acceso sur hacia la zona industrial",
+                LatitudInicio = -17.1000, LongitudInicio = -68.7500,
+                LatitudFin = -17.4000, LongitudFin = -69.0500,
+                KmInicio = 100, KmFin = 150,
                 Activo = true,
                 FechaCreacion = DateTime.UtcNow
             }
@@ -46,7 +55,7 @@ public static class AppDbSeeder
         db.Tramos.AddRange(tramos);
         db.SaveChanges();
 
-        // obtener ids de tramos para asignar
+        // asigna tramos a cada usuario
         var tramo1 = tramos[0].IdTramo;
         var tramo2 = tramos[1].IdTramo;
         var tramo3 = tramos[2].IdTramo;
@@ -70,7 +79,7 @@ public static class AppDbSeeder
                 Rol = UserRole.Administrador,
                 Activo = true,
                 FechaCreacion = DateTime.UtcNow,
-                Tramos = new List<Tramo> { tramos[0], tramos[1], tramos[2] } // admin ve todos
+                Tramos = new List<Tramo> { tramos[0], tramos[1], tramos[2] } // acceso a todos los tramos
             },
             new Usuario
             {
@@ -82,7 +91,7 @@ public static class AppDbSeeder
                 Rol = UserRole.SupervisorCampo,
                 Activo = true,
                 FechaCreacion = DateTime.UtcNow,
-                Tramos = new List<Tramo> { tramos[0], tramos[1] } // supervisor ve tramo 1 y 2
+                Tramos = new List<Tramo> { tramos[0], tramos[1] } // acceso a dos tramos
             },
             new Usuario
             {
@@ -94,7 +103,7 @@ public static class AppDbSeeder
                 Rol = UserRole.PersonalMicroempresa,
                 Activo = true,
                 FechaCreacion = DateTime.UtcNow,
-                Tramos = new List<Tramo> { tramos[2] } // personal ve solo tramo 3
+                Tramos = new List<Tramo> { tramos[2] } // acceso a un tramo
             }
         };
 

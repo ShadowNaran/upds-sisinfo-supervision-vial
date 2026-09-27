@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using Arooaf.Api.Data;
+using Arooaf.Api.Hubs;
 using Arooaf.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// configuracion jwt hu-01 tarea 7
+// configura jwt
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
     ?? throw new InvalidOperationException("Falta la sección 'Jwt' en appsettings.json.");
 
@@ -27,7 +28,6 @@ if (jwt.SecretKey.Length < 32)
 builder.Services.AddSingleton(jwt);
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -43,12 +43,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey)),
             ClockSkew = TimeSpan.FromSeconds(30)
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/alertas"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
 
-// base de datos ep-04 hu-17 inmemory para desarrollo sin conexion local
-// npgsql postgresql para produccion cambiar en appsettings json
+// usa memoria si no se configura otro proveedor de base de datos
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var provider = builder.Configuration.GetValue<string>("Database:Provider");
@@ -56,6 +68,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     if (string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase))
     {
         options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+        options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+    else if (string.Equals(provider, "SqlServer", StringComparison.OrdinalIgnoreCase))
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
     }
     else
     {
@@ -63,24 +81,34 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
 });
 
-// scalar para documentacion api (clase readme)
+// documentacion de la api
 builder.Services.AddOpenApi();
+
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 2 * 1024 * 1024; // limite de 2 MB para fotos
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevWeb", policy =>
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+        policy.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 });
 
 var app = builder.Build();
 
-// seed de usuarios de inicio hu-01 con inmemory se recrean en cada arranque
+// prepara la base de datos y los usuarios iniciales
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var provider = builder.Configuration.GetValue<string>("Database:Provider");
 
-    if (!string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(provider, "SqlServer", StringComparison.OrdinalIgnoreCase) || 
+        string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase))
+    {
+        db.Database.Migrate();
+    }
+    else
     {
         db.Database.EnsureCreated();
     }
@@ -88,7 +116,7 @@ using (var scope = app.Services.CreateScope())
     AppDbSeeder.Seed(db);
 }
 
-// scalar en desarrollo (clase readme)
+// publica la documentacion en desarrollo
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -100,9 +128,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<AlertasHub>("/hubs/alertas");
 
 app.Run();
-
-public partial class Program
-{
-}

@@ -5,8 +5,7 @@ export interface ErroresLogin {
   password?: string
 }
 
-// validacion de campos en el cliente hu-01 tarea 3
-// reglas espejo del backend obligatorio longitud minima
+// valida los campos con las mismas reglas del backend
 export function validarLogin({
   username,
   password,

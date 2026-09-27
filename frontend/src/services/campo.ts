@@ -1,5 +1,63 @@
 import { api } from '@/services/api'
-import type { Personal, Planilla, Tramo } from '@/types/campo'
+import type { Planilla, Tramo, Personal } from '@/types/campo'
+
+export interface PlanillaResumen {
+  id: string
+  fecha: string
+  idTramo: string
+  tramo: string
+  estado: string
+  personal: number
+  presentes: number
+  cerradaEn: string | null
+}
+
+export interface PersonalResumen {
+  id: string
+  nombreCompleto: string
+  documento: string
+  cargo?: string
+  tramo: string
+  idTramo: string
+  estadoValidacion: 'Aprobado' | 'PendienteValidacion' | 'Rechazado'
+}
+
+function normalizarSeveridad(valor: unknown): 0 | 1 | 2 | undefined {
+  if (valor === 0 || valor === 1 || valor === 2) return valor
+  if (valor === '0' || valor === 'TransitableNormal') return 0
+  if (valor === '1' || valor === 'TransitableConPrecaucion') return 1
+  if (valor === '2' || valor === 'NoTransitable') return 2
+  return undefined
+}
+
+function normalizarPlanilla(planilla: Planilla): Planilla {
+  return {
+    ...planilla,
+    detalles: planilla.detalles.map((detalle) => ({
+      ...detalle,
+      severidad: normalizarSeveridad(detalle.severidad),
+    })),
+  }
+}
+
+export async function listarPlanillas(): Promise<PlanillaResumen[]> {
+  const { data } = await api.get<PlanillaResumen[]>('/api/planillas')
+  return data
+}
+
+export async function listarTodoPersonal(): Promise<PersonalResumen[]> {
+  const { data } = await api.get<PersonalResumen[]>('/api/personal')
+  return data
+}
+
+export async function validarPersonal(id: string, estado: 'Aprobado' | 'Rechazado'): Promise<void> {
+  await api.patch(`/api/personal/${id}/validar`, { estado })
+}
+
+export async function obtenerPlanilla(id: string): Promise<Planilla> {
+  const { data } = await api.get<Planilla>(`/api/planillas/${id}`)
+  return normalizarPlanilla(data)
+}
 
 const CLAVE_TRAMOS = 'aroomaf.catalogo.tramos'
 const clavePersonal = (idTramo: string) => `aroomaf.catalogo.personal.${idTramo}`
@@ -10,7 +68,7 @@ function leer<T>(clave: string): T | null {
 }
 
 function guardar<T>(clave: string, valor: T): void {
-  try { localStorage.setItem(clave, JSON.stringify(valor)) } catch { /* cuota local agotada */ }
+  try { localStorage.setItem(clave, JSON.stringify(valor)) } catch { /* almacenamiento lleno */ }
 }
 
 export async function listarTramos(): Promise<Tramo[]> {
@@ -21,6 +79,11 @@ export async function listarTramos(): Promise<Tramo[]> {
   } catch {
     return leer<Tramo[]>(CLAVE_TRAMOS) ?? []
   }
+}
+
+export async function crearPersonalManual(datos: { nombreCompleto: string; documento: string; cargo: string; telefono: string; idTramo: string }): Promise<Personal> {
+  const { data } = await api.post<Personal>('/api/personal', datos)
+  return data
 }
 
 export async function listarPersonal(idTramo: string): Promise<Personal[]> {
@@ -39,15 +102,21 @@ export async function crearPlanilla(idTramo: string): Promise<Planilla> {
 }
 
 export async function actualizarPlanilla(planilla: Planilla): Promise<Planilla> {
-  const { data } = await api.put<Planilla>(`/api/planillas/${planilla.id}`, {
+  const payload = {
     observaciones: planilla.observaciones,
-    detalles: planilla.detalles.map((detalle) => ({ idDetalle: detalle.id, estado: detalle.estado, observacion: detalle.observacion, clasificacion: detalle.clasificacion, fotoBase64: detalle.fotoBase64 })),
-  })
-  return data
+    timestampLocal: planilla.timestampLocal,
+    detalles: planilla.detalles.map((detalle) => ({ idDetalle: detalle.id, estado: detalle.estado, observacion: detalle.observacion, clasificacion: detalle.clasificacion, fotoBase64: detalle.fotoBase64, latitud: detalle.latitud, longitud: detalle.longitud, kilometraje: detalle.kilometraje, severidad: normalizarSeveridad(detalle.severidad) })),
+  }
+  const { data } = await api.put<Planilla>(`/api/planillas/${planilla.id}`, payload)
+  return normalizarPlanilla(data)
 }
 
-export async function firmarPlanilla(id: string, firmaBase64: string): Promise<void> {
-  await api.post(`/api/planillas/${id}/firma`, { firmaBase64 })
+export async function firmarPlanilla(idPlanilla: string, firmaBase64: string): Promise<void> {
+  await api.post(`/api/planillas/${idPlanilla}/firmar`, { firmaBase64 })
+}
+
+export async function registrarMitigacion(idDetalle: string, accionMitigacion: string, esFalsoPositivo: boolean = false): Promise<void> {
+  await api.post(`/api/planillas/detalle/${idDetalle}/mitigacion`, { accionMitigacion, esFalsoPositivo })
 }
 
 export async function cerrarPlanilla(id: string): Promise<Planilla> {

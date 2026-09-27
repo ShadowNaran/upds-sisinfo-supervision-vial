@@ -11,6 +11,7 @@ public class Planilla
     public string? Observaciones { get; set; }
     public string? FirmaBase64 { get; set; }
     public DateTime CreadaEn { get; set; } = DateTime.UtcNow;
+    public long? TimestampLocal { get; set; }
     public DateTime? CerradaEn { get; set; }
     public ICollection<PlanillaDetalle> Detalles { get; set; } = new List<PlanillaDetalle>();
 }
