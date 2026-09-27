@@ -14,7 +14,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
             .Build();
 
         var connectionString = config.GetConnectionString("Default")
-            ?? "Host=localhost;Database=ArooafDB;Username=postgres;Password=TU_PASSWORD_AQUI";
+            ?? "Host=TU_HOST_AQUI;Database=TU_DATABASE_AQUI;Username=TU_USUARIO_AQUI;Password=TU_PASSWORD_AQUI;SslMode=Require;";
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(connectionString)
