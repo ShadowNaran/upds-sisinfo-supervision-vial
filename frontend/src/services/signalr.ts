@@ -12,8 +12,10 @@ export function initSignalR() {
   const token = auth.perfil?.token
   if (!token) return
 
+  const baseUrl = import.meta.env.VITE_API_URL ?? 'https://upds-sisinfo-supervision-vial.onrender.com'
+
   connection = new HubConnectionBuilder()
-    .withUrl(`${import.meta.env.VITE_API_URL}/hubs/alertas?access_token=${token}`)
+    .withUrl(`${baseUrl}/hubs/alertas?access_token=${token}`)
     .withAutomaticReconnect()
     .configureLogging(LogLevel.Warning)
     .build()

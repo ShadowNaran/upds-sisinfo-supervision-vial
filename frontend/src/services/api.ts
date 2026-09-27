@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
 export const API_URL =
-  import.meta.env.VITE_API_URL ?? 'http://localhost:5094'
+  import.meta.env.VITE_API_URL ?? 'https://upds-sisinfo-supervision-vial.onrender.com'
 
 export const api = axios.create({
   baseURL: API_URL,
