@@ -41,13 +41,23 @@ function normalizarPlanilla(planilla: Planilla): Planilla {
 }
 
 export async function listarPlanillas(): Promise<PlanillaResumen[]> {
-  const { data } = await api.get<PlanillaResumen[]>('/api/planillas')
-  return data
+  try {
+    const { data } = await api.get<PlanillaResumen[]>('/api/planillas')
+    guardar('aroomaf.planillas_resumen', data)
+    return data
+  } catch {
+    return leer<PlanillaResumen[]>('aroomaf.planillas_resumen') ?? []
+  }
 }
 
 export async function listarTodoPersonal(): Promise<PersonalResumen[]> {
-  const { data } = await api.get<PersonalResumen[]>('/api/personal')
-  return data
+  try {
+    const { data } = await api.get<PersonalResumen[]>('/api/personal')
+    guardar('aroomaf.personal_resumen', data)
+    return data
+  } catch {
+    return leer<PersonalResumen[]>('aroomaf.personal_resumen') ?? []
+  }
 }
 
 export async function validarPersonal(id: string, estado: 'Aprobado' | 'Rechazado'): Promise<void> {
