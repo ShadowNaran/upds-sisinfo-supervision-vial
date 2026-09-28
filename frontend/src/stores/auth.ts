@@ -59,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
       rol: Rol
       nombre: string
       username: string
-      expiresAt: string
+      expiraEn: string
     }>('/api/auth/login', credenciales)
 
     const nuevoPerfil: Perfil = {
@@ -67,8 +67,8 @@ export const useAuthStore = defineStore('auth', () => {
       rol: data.rol,
       nombre: data.nombre,
       username: data.username,
-      expiresAt: data.expiresAt,
-      expiresInSeconds: Math.max(0, Math.round((new Date(data.expiresAt).getTime() - Date.now()) / 1000)),
+      expiresAt: data.expiraEn,
+      expiresInSeconds: Math.max(0, Math.round((new Date(data.expiraEn).getTime() - Date.now()) / 1000)),
     }
 
     await salvarSesion(nuevoPerfil)
