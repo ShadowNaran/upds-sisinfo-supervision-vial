@@ -65,8 +65,16 @@ export async function validarPersonal(id: string, estado: 'Aprobado' | 'Rechazad
 }
 
 export async function obtenerPlanilla(id: string): Promise<Planilla> {
-  const { data } = await api.get<Planilla>(`/api/planillas/${id}`)
-  return normalizarPlanilla(data)
+  try {
+    const { data } = await api.get<Planilla>(`/api/planillas/${id}`)
+    const planilla = normalizarPlanilla(data)
+    guardar(clavePlanilla(id), planilla)
+    return planilla
+  } catch (err) {
+    const local = leer<Planilla>(clavePlanilla(id))
+    if (local) return local
+    throw err
+  }
 }
 
 const CLAVE_TRAMOS = 'aroomaf.catalogo.tramos'

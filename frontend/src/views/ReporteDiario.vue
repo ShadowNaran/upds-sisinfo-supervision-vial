@@ -42,6 +42,10 @@ const eventos = computed(() => {
 
 async function guardarMitigacion(idDetalle: string, falsoPositivo: boolean = false) {
   if (!accionTexto.value.trim()) return
+  if (!navigator.onLine) {
+    alert('Esta acción requiere conexión a internet.')
+    return
+  }
   
   try {
     guardandoMitigacion.value = true

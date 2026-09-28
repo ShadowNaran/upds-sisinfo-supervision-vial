@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { api } from '@/services/api'
-import { listarTramos, crearPersonalManual } from '@/services/campo'
+import { listarTramos, crearPersonalManual, listarTodoPersonal } from '@/services/campo'
 import type { Tramo } from '@/types/campo'
 import { useAuthStore } from '@/stores/auth'
 
@@ -25,8 +25,7 @@ async function cargarDatos() {
   cargando.value = true
   try {
     tramos.value = await listarTramos()
-    const { data } = await api.get('/api/personal')
-    personal.value = data
+    personal.value = await listarTodoPersonal()
     if (tramos.value.length > 0 && !editandoPersonal.value) formPersonal.value.idTramo = tramos.value[0].id
   } catch {
     error.value = 'Error al cargar datos'
@@ -46,6 +45,11 @@ function cancelarEdicionTramo() {
 
 async function guardarTramo() {
   if (!formTramo.value.codigo || !formTramo.value.nombre || formTramo.value.kmInicio > formTramo.value.kmFin) return
+  if (!navigator.onLine) {
+    error.value = 'Crear o editar tramos requiere conexión a internet.'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   try {
     error.value = ''
     if (editandoTramo.value) {
@@ -64,6 +68,11 @@ async function guardarTramo() {
 }
 
 async function desactivarTramo(id: string) {
+  if (!navigator.onLine) {
+    error.value = 'Desactivar tramos requiere conexión a internet.'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   if (!confirm('¿Estás seguro de desactivar este tramo?')) return
   try {
     await api.delete(`/api/tramos/${id}`)
@@ -86,6 +95,11 @@ function cancelarEdicionPersonal() {
 
 async function guardarPersonal() {
   if (!formPersonal.value.nombreCompleto.trim() || !ciValido.value || !formPersonal.value.idTramo) return
+  if (!navigator.onLine) {
+    error.value = 'Registrar personal desde el panel requiere conexión a internet.'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   try {
     error.value = ''
     if (editandoPersonal.value) {
@@ -104,6 +118,11 @@ async function guardarPersonal() {
 }
 
 async function desactivarPersonal(id: string) {
+  if (!navigator.onLine) {
+    error.value = 'Desactivar trabajadores requiere conexión a internet.'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   if (!confirm('¿Estás seguro de desactivar a este trabajador?')) return
   try {
     await api.delete(`/api/personal/${id}`)

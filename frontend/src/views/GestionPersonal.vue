@@ -27,6 +27,11 @@ async function cargar() {
 }
 
 async function accion(id: string, estado: 'Aprobado' | 'Rechazado') {
+  if (!navigator.onLine) {
+    error.value = 'Esta acción requiere conexión a internet.'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
   procesando.value = id
   mensaje.value = ''
   try {
